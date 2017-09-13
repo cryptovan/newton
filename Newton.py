@@ -3,6 +3,9 @@ strategy("Newton Strategy", overlay=true, pyramiding=0, calc_on_every_tick=true,
 
 
 threshold = input(title="Threshold", type=float, defval=0.2, step=0.0001)
+// slPoints = input(title="Stop Loss Trail Points", type=integer, defval=200, minval=1, step=1)
+// slOffset = input(title="Stop Loss Trail Offset", type=integer, defval=400, minval=1, step=1)
+// bgTransp = input(title="Background transparency", type=integer, defval=80, minval=1, maxval=100)
 
 getDiff() =>
     yesterday=security(tickerid, 'D', ohlc4[1])
@@ -76,11 +79,12 @@ l3_0 = PineActivationFunctionTanh(l2_0*0.3385061186 + l2_1*0.6218531956 + l2_2*-
 long = l3_0 > threshold
 short = l3_0 < -threshold
 
-hline(0, title="base line")
+//hline(0, title="base line")
 
-bgcolor(long ? green : (short ? red : gray), transp=20)
-plot(l3_0, color=silver, style=area, transp=75)
-plot(l3_0, color=aqua, title="prediction")
+bgcolor(long ? green : (short ? red : gray), transp=(long ? 80 : (short ? 80 : 100)))
+
+//plot(l3_0, color=silver, style=area, transp=95)
+//plot(l3_0, color=aqua, title="prediction", transp=95)
 
 if (long == true)
     strategy.entry("Long", strategy.long)
@@ -88,5 +92,7 @@ if (long == true)
 if (short == true)
     strategy.entry("Short", strategy.short)
 
+
 if (long == false and short == false)
-    strategy.entry("Exit", false)
+    strategy.close("Long", true)
+    strategy.close("Short", true)
